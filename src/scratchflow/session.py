@@ -1,5 +1,5 @@
 import json
-from typing import Union
+from typing import Optional, TypeAlias, Union
 
 
 class _BaseAuth:
@@ -16,7 +16,7 @@ class Standard(_BaseAuth):
 
 
 class Cookie(_BaseAuth):
-    def __init__(self, token: str, id: str, lang: Union[str, None] = None) -> None:
+    def __init__(self, token: str, id: str, lang: Optional[str] = None) -> None:
         if lang is None:
             self.data = json.dumps({
                 "scratchcsrftoken": token,
@@ -31,6 +31,25 @@ class Cookie(_BaseAuth):
             })
 
 
+_AuthProtocol: TypeAlias = Union[Standard, Cookie]
+
+
 class SessionClient:
-    def __init__(self, auth: Union[Standard, Cookie]) -> None:
-        pass  # TODO: 認証処理 - requests または urllib
+    def __init__(self, auth: _AuthProtocol) -> None:
+        self.auth = auth
+        self.id = None
+        self.common_token = dict()
+
+        _type = isinstance(auth, (Standard, Cookie))
+
+        if _type == (True, False):
+            pass
+
+        elif _type == (False, True):
+            pass
+
+        elif _type == (True, True):
+            pass
+
+        elif _type == (False, False):
+            pass
