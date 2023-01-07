@@ -1,5 +1,8 @@
+from dataclasses import dataclass
 import json
 from typing import Optional, TypeAlias, Union
+
+_StringLike: TypeAlias = Optional[str]
 
 
 class _BaseAuth:
@@ -16,7 +19,7 @@ class Standard(_BaseAuth):
 
 
 class Cookie(_BaseAuth):
-    def __init__(self, token: str, id: str, lang: Optional[str] = None) -> None:
+    def __init__(self, token: str, id: str, lang: _StringLike = None) -> None:
         if lang is None:
             self.data = json.dumps({
                 "scratchcsrftoken": token,
@@ -34,13 +37,19 @@ class Cookie(_BaseAuth):
 _AuthProtocol: TypeAlias = Union[Standard, Cookie]
 
 
+@dataclass
+class CommonToken:
+    csrf_token: _StringLike = None
+    x_token: _StringLike = None
+
+
 class SessionClient:
     def __init__(self, auth: _AuthProtocol) -> None:
         self.auth = auth
-        self.id = None
-        self.common_token = dict()
+        self.sessions_id = None
+        self.common_token = CommonToken()
 
-        _type = isinstance(auth, (Standard, Cookie))
+        _type = (isinstance(auth, Standard), isinstance(auth, Cookie))
 
         if _type == (True, False):
             pass
